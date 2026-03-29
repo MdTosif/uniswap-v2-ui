@@ -28,6 +28,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
             accentColorForeground: 'white',
             borderRadius: 'large',
           })}
+          appInfo={{ appName: 'Uniswap V2 UI' }}
         >
           {children}
         </RainbowKitProvider>

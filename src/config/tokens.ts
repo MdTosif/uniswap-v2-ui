@@ -74,6 +74,12 @@ export const TOKENS: Record<number, Token[]> = {
     { address: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913', symbol: 'USDC', name: 'USD Coin', decimals: 6, chainId: 8453, logoURI: 'https://assets.coingecko.com/coins/images/6319/small/usdc.png' },
     { address: '0x50c5725949A6F0c72E6C4a641F24049A917DB0Cb', symbol: 'DAI', name: 'Dai Stablecoin', decimals: 18, chainId: 8453, logoURI: 'https://assets.coingecko.com/coins/images/9956/small/Badge_Dai.png' },
   ],
+  // Hoodi testnet
+  560048: [
+    { address: NATIVE_ADDRESS, symbol: 'ETH', name: 'Ether', decimals: 18, chainId: 560048, isNative: true, logoURI: 'https://assets.coingecko.com/coins/images/279/small/ethereum.png' },
+    { address: '0x15a35CbEF19fce41BCA5Fa86e5F90be37b03AFE8', symbol: 'WETH', name: 'Wrapped Ether', decimals: 18, chainId: 560048, logoURI: 'https://assets.coingecko.com/coins/images/2518/small/weth.png' },
+    { address: '0x1d603d0E376DbB58A7C720971EDF6c2223093F76', symbol: 'MTK', name: 'My Token (Hoodi)', decimals: 18, chainId: 560048, logoURI: 'https://assets.coingecko.com/coins/images/6319/small/usdc.png' },
+  ],
 };
 
 export const POPULAR_POOLS: Record<number, { token0: string; token1: string; label: string }[]> = {
@@ -100,5 +106,9 @@ export const POPULAR_POOLS: Record<number, { token0: string; token1: string; lab
   ],
   8453: [
     { token0: '0x4200000000000000000000000000000000000006', token1: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913', label: 'WETH / USDC' },
+  ],
+  // Hoodi
+  560048: [
+    { token0: '0x15a35CbEF19fce41BCA5Fa86e5F90be37b03AFE8', token1: '0x1d603d0E376DbB58A7C720971EDF6c2223093F76', label: 'WETH / USDC' },
   ],
 };
