@@ -19,6 +19,12 @@ A multi-network Uniswap V2 interface built with **Next.js 16**, **wagmi v3**, **
 
 ---
 
+## Network Support & Testing Status
+
+> **Note:** This project has only been tested on the **Hoodi testnet** (chain ID 560048). Other networks are configured and should work in principle, but have not been verified. Use them at your own risk — contract addresses, token lists, and RPC endpoints for non-Hoodi networks may be incomplete or outdated.
+
+---
+
 ## Supported Networks
 
 | Network | Chain ID | DEX | Default |
