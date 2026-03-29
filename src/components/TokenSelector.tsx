@@ -2,9 +2,10 @@
 
 import { useState, useEffect } from 'react';
 import { useAccount, useReadContract, useBalance } from 'wagmi';
-import { formatUnits } from 'viem';
+import { formatUnits, isAddress } from 'viem';
 import { Token, TOKENS } from '@/config/tokens';
 import { ERC20_ABI } from '@/config/contracts';
+import { getCustomTokens, addCustomToken } from '@/lib/customTokens';
 
 interface TokenSelectorProps {
   chainId: number;
@@ -37,12 +38,51 @@ export function TokenSelector({ chainId, selected, onSelect, exclude, label }: T
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState('');
   const { address } = useAccount();
+  const [customTokens, setCustomTokens] = useState<Token[]>([]);
 
-  const tokens = (TOKENS[chainId] ?? []).filter(
-    (t) => !exclude || t.address.toLowerCase() !== exclude.address.toLowerCase(),
-  );
+  // Load custom tokens from localStorage whenever the modal opens
+  useEffect(() => {
+    if (open) setCustomTokens(getCustomTokens(chainId));
+  }, [open, chainId]);
 
-  const filtered = tokens.filter(
+  // Merge built-in + custom, deduplicating by address
+  const builtIn = TOKENS[chainId] ?? [];
+  const allTokens: (Token & { isCustom?: boolean })[] = [
+    ...builtIn,
+    ...customTokens
+      .filter((c) => !builtIn.some((b) => b.address.toLowerCase() === c.address.toLowerCase()))
+      .map((t) => ({ ...t, isCustom: true })),
+  ].filter((t) => !exclude || t.address.toLowerCase() !== exclude.address.toLowerCase());
+
+  // ── import-by-address logic ────────────────────────────────────────────────
+  const searchIsAddress = isAddress(search);
+
+  const { data: importName }     = useReadContract({ address: search as `0x${string}`, abi: ERC20_ABI, functionName: 'name',     chainId, query: { enabled: searchIsAddress } });
+  const { data: importSymbol }   = useReadContract({ address: search as `0x${string}`, abi: ERC20_ABI, functionName: 'symbol',   chainId, query: { enabled: searchIsAddress } });
+  const { data: importDecimals } = useReadContract({ address: search as `0x${string}`, abi: ERC20_ABI, functionName: 'decimals', chainId, query: { enabled: searchIsAddress } });
+
+  const canImport =
+    searchIsAddress &&
+    importName && importSymbol && importDecimals !== undefined &&
+    !allTokens.some((t) => t.address.toLowerCase() === search.toLowerCase());
+
+  function handleImport() {
+    if (!canImport) return;
+    const token: Token = {
+      address:  search as `0x${string}`,
+      symbol:   importSymbol as string,
+      name:     importName   as string,
+      decimals: importDecimals as number,
+      chainId,
+    };
+    addCustomToken(token);
+    setCustomTokens(getCustomTokens(chainId));
+    onSelect(token);
+    setOpen(false);
+    setSearch('');
+  }
+
+  const filtered = allTokens.filter(
     (t) =>
       t.symbol.toLowerCase().includes(search.toLowerCase()) ||
       t.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -103,7 +143,34 @@ export function TokenSelector({ chainId, selected, onSelect, exclude, label }: T
             </div>
 
             <div className="max-h-72 overflow-y-auto pb-2">
-              {filtered.length === 0 && (
+              {/* Import by address card */}
+              {searchIsAddress && (
+                <div className="mx-4 my-2 rounded-xl bg-gray-800 border border-white/10 px-4 py-3">
+                  {canImport ? (
+                    <div className="flex items-center justify-between gap-3">
+                      <div>
+                        <p className="font-medium text-white">{importSymbol as string}</p>
+                        <p className="text-xs text-gray-400">{importName as string}</p>
+                        <p className="text-xs text-gray-500 font-mono mt-0.5">{search.slice(0,10)}…</p>
+                      </div>
+                      <button
+                        onClick={handleImport}
+                        className="flex-shrink-0 rounded-lg bg-purple-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-purple-500 transition-colors"
+                      >
+                        Import
+                      </button>
+                    </div>
+                  ) : (
+                    <p className="text-xs text-gray-500 text-center py-1">
+                      {allTokens.some((t) => t.address.toLowerCase() === search.toLowerCase())
+                        ? 'Token already in list'
+                        : 'Loading token info…'}
+                    </p>
+                  )}
+                </div>
+              )}
+
+              {filtered.length === 0 && !searchIsAddress && (
                 <p className="py-8 text-center text-sm text-gray-500">No tokens found</p>
               )}
               {filtered.map((token) => (
@@ -118,12 +185,17 @@ export function TokenSelector({ chainId, selected, onSelect, exclude, label }: T
                     // eslint-disable-next-line @next/next/no-img-element
                     <img src={token.logoURI} alt={token.symbol} className="h-8 w-8 rounded-full flex-shrink-0" onError={(e) => (e.currentTarget.style.display = 'none')} />
                   ) : (
-                    <div className="h-8 w-8 rounded-full bg-gray-700 flex items-center justify-center text-xs font-bold text-white flex-shrink-0">
+                    <div className="h-8 w-8 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-xs font-bold text-white flex-shrink-0">
                       {token.symbol[0]}
                     </div>
                   )}
                   <div className="flex-1 min-w-0 text-left">
-                    <p className="font-medium text-white">{token.symbol}</p>
+                    <p className="font-medium text-white flex items-center gap-1.5">
+                      {token.symbol}
+                      {(token as Token & { isCustom?: boolean }).isCustom && (
+                        <span className="rounded px-1 py-0.5 text-[10px] font-semibold bg-purple-600/30 text-purple-300">custom</span>
+                      )}
+                    </p>
                     <p className="text-xs text-gray-500 truncate">{token.name}</p>
                   </div>
                   {address && <TokenBalance token={token} address={address} />}

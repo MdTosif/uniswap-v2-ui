@@ -5,9 +5,10 @@ import { usePathname } from 'next/navigation';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 
 const NAV_ITEMS = [
-  { href: '/swap', label: 'Swap' },
+  { href: '/swap',     label: 'Swap' },
   { href: '/liquidity', label: 'Liquidity' },
-  { href: '/pools', label: 'Pools' },
+  { href: '/pools',    label: 'Pools' },
+  { href: '/deploy',   label: 'Deploy' },
 ];
 
 export function Header() {
