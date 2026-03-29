@@ -19,12 +19,14 @@ import {
 import { TOKENS, Token } from '@/config/tokens';
 import { formatAmount, slippageMultiplier, txDeadline, MAX_UINT256 } from '@/lib/utils';
 import { TokenSelector } from './TokenSelector';
+import { useConnectModal } from '@rainbow-me/rainbowkit';
 
 type Tab = 'add' | 'remove';
 
 export function LiquidityManager() {
   const chainId = useChainId();
   const { address, isConnected } = useAccount();
+  const { openConnectModal } = useConnectModal();
   const contracts = CONTRACTS[chainId];
   const tokens = TOKENS[chainId] ?? [];
 
@@ -358,7 +360,7 @@ export function LiquidityManager() {
 
             {/* Action buttons */}
             {!isConnected ? (
-              <div className="rounded-xl bg-gray-800 p-3 text-center text-sm text-gray-400">Connect wallet to add liquidity</div>
+              <button onClick={openConnectModal} className="w-full rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 py-3 font-semibold text-white hover:opacity-90 transition-opacity">Connect Wallet</button>
             ) : needsApproveA ? (
               <button onClick={handleApproveA} disabled={isApprovingA} className="w-full rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 py-3 font-semibold text-white hover:opacity-90 disabled:opacity-50">
                 {isApprovingA ? 'Approving…' : `Approve ${tokenA?.symbol}`}
@@ -450,7 +452,7 @@ export function LiquidityManager() {
                   )}
 
                   {!isConnected ? (
-                    <div className="rounded-xl bg-gray-800 p-3 text-center text-sm text-gray-400">Connect wallet</div>
+                    <button onClick={openConnectModal} className="w-full rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 py-3 font-semibold text-white hover:opacity-90 transition-opacity">Connect Wallet</button>
                   ) : (needsApproveLp || (!isApproveLpConfirmed && (lpAllowance as bigint | undefined) !== undefined && (lpAllowance as bigint) < lpAmountWei)) ? (
                     <button onClick={handleApproveLp} disabled={isApprovingLp} className="w-full rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 py-3 font-semibold text-white hover:opacity-90 disabled:opacity-50">
                       {isApprovingLp ? 'Approving LP…' : 'Approve LP Token'}

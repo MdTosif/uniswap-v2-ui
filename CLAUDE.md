@@ -149,7 +149,7 @@ Set in `.env.local` (not committed). See `.env.example` for reference.
 
 | Package | Notes |
 |---|---|
-| `wagmi` v3 | Use `useReadContract`, `useWriteContract`, `useWaitForTransactionReceipt`. No `usePrepareContractWrite` (removed in v2+). |
+| `wagmi` v2 | Use `useReadContract`, `useWriteContract`, `useWaitForTransactionReceipt`. No `usePrepareContractWrite` (removed in v2+). Must stay on v2.x — RainbowKit 2.x requires `wagmi ^2.9.0` and does not support wagmi v3. |
 | `viem` v2 | Use `parseUnits`, `formatUnits`, `maxUint256`. Import from `'viem'`, not `'ethers'`. |
 | `@rainbow-me/rainbowkit` v2 | Use `getDefaultConfig` for wallet list. `createConfig` alone loses the wallet modal. |
 | `@tanstack/react-query` v5 | `useQuery` options are nested under `query: { enabled, retry, staleTime }` inside wagmi hooks. |

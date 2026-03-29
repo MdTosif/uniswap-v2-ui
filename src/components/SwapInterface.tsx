@@ -14,12 +14,14 @@ import { CONTRACTS, UNISWAP_V2_ROUTER_ABI, ERC20_ABI } from '@/config/contracts'
 import { TOKENS, Token } from '@/config/tokens';
 import { formatAmount, slippageMultiplier, txDeadline, calcPriceImpact } from '@/lib/utils';
 import { TokenSelector } from './TokenSelector';
+import { useConnectModal } from '@rainbow-me/rainbowkit';
 
 type TxStatus = 'idle' | 'approving' | 'swapping' | 'success' | 'error';
 
 export function SwapInterface() {
   const chainId = useChainId();
   const { address, isConnected } = useAccount();
+  const { openConnectModal } = useConnectModal();
 
   const contracts = CONTRACTS[chainId];
   const tokens = TOKENS[chainId] ?? [];
@@ -352,9 +354,12 @@ export function SwapInterface() {
 
         {/* Action button */}
         {!isConnected ? (
-          <div className="rounded-xl bg-gray-800 p-3 text-center text-sm text-gray-400">
-            Connect your wallet to swap
-          </div>
+          <button
+            onClick={openConnectModal}
+            className="w-full rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 py-3 font-semibold text-white hover:opacity-90 transition-opacity"
+          >
+            Connect Wallet
+          </button>
         ) : !tokenIn || !tokenOut ? (
           <button disabled className="w-full rounded-xl bg-gray-700 py-3 font-semibold text-gray-400 cursor-not-allowed">
             Select tokens
